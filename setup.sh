@@ -11,16 +11,22 @@ fi
 
 echo "🚀 Starting Idempotent Setup for $DOMAIN..."
 
+# 0. DigitalOcean Image Recommendation
+echo "Note: DigitalOcean strongly recommends using their AI/ML-ready image (slug: gpu-h100x1-base) which has Ubuntu 22.04, CUDA 12.9, and Drivers 575 pre-installed."
+
 # 1. System Updates & Prerequisites
 if ! dpkg -l | grep -q curl; then
-    apt-get update && apt-get install -y curl software-properties-common apt-transport-https
+    apt-get update && apt-get install -y curl software-properties-common apt-transport-https wget
 fi
 
-# 2. NVIDIA Drivers & CUDA Toolkit (Ubuntu 24.04/22.04)
+# 2. NVIDIA Drivers & CUDA Toolkit
+# If the user didn't use the recommended DO image, install the specific DO recommended packages.
 if ! command -v nvidia-smi &> /dev/null; then
-    echo "Installing NVIDIA Drivers..."
-    apt-get install -y ubuntu-drivers-common
-    ubuntu-drivers autoinstall
+    echo "Installing NVIDIA Drivers (575) and CUDA Toolkit (12.9) per DigitalOcean specs..."
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+    dpkg -i cuda-keyring_1.1-1_all.deb
+    apt-get update
+    apt-get install -y cuda-drivers-575 cuda-toolkit-12-9
 fi
 
 # 3. Docker & NVIDIA Container Toolkit
