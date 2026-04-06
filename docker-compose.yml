@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  backend-gpu:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - model_cache:/app/models
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  webui:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - API_URL=http://backend-gpu:8000
+    depends_on:
+      backend-gpu:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - webui
+
+volumes:
+  model_cache:
