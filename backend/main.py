@@ -62,6 +62,12 @@ async def generate_3d(
         img_nobg = remove_background(pil_img, rembg_session=None)
         img_framed = resize_foreground(img_nobg, 0.85)
 
+        # TripoSR expects a 3-channel RGB image with a gray background
+        img_arr = np.array(img_framed).astype(np.float32) / 255.0
+        if img_arr.shape[-1] == 4:
+            img_arr = img_arr[:, :, :3] * img_arr[:, :, 3:4] + (1 - img_arr[:, :, 3:4]) * 0.5
+        img_framed = Image.fromarray((img_arr * 255.0).astype(np.uint8))
+
         # 2. Real AI Generation! (Forward Pass)
         logger.info(f"Running inference on {device}...")
         
