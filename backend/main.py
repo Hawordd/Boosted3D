@@ -18,7 +18,11 @@ def health_check():
 @app.post("/generate")
 async def generate_3d(
     image: UploadFile = File(...),
-    topology_preset: str = Form(...)
+    topology_preset: str = Form("Nanite High-Fidelity"),
+    texture_resolution: str = Form("2048"),
+    export_format: str = Form("FBX Binary"),
+    guidance_scale: float = Form(7.5),
+    poly_count_target: int = Form(25000),
 ):
     try:
         # 1. Save uploaded image
@@ -42,7 +46,8 @@ async def generate_3d(
         # 3. Post-Process
         output_dir = os.path.join(tempfile.gettempdir(), "output_mesh")
         os.makedirs(output_dir, exist_ok=True)
-        final_fbx_path = os.path.join(output_dir, "final_ue5.fbx")
+        ext = ".glb" if "GLB" in export_format else ".fbx"
+        final_fbx_path = os.path.join(output_dir, f"final_ue5{ext}")
 
         # In a fully functional mock, we'd need a real OBJ to run pymeshlab. 
         # For setup, we'll bypass the actual processing if it's a mock string.
@@ -60,9 +65,9 @@ async def generate_3d(
         # Due to the mock nature, processor.process will fail on a fake OBJ, 
         # so we'll just mock the output file creation for now of the API.
         with open(final_fbx_path, "w") as f:
-            f.write("Mock FBX Content")
+            f.write(f"Mock {export_format} Content. Res: {texture_resolution}, GC: {guidance_scale}, Polys: {poly_count_target}")
             
-        return FileResponse(path=final_fbx_path, filename="final_ue5.fbx", media_type="application/octet-stream")
+        return FileResponse(path=final_fbx_path, filename=f"final_ue5{ext}", media_type="application/octet-stream")
 
     except Exception as e:
         logger.error(f"Generation error: {e}")
