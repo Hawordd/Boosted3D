@@ -87,4 +87,5 @@ with gr.Blocks(theme=gr.themes.Monochrome()) as app:
     )
 
 if __name__ == "__main__":
-    app.launch(server_name="0.0.0.0", server_port=7860)
+    os.environ["GRADIO_SERVER_NAME"] = "0.0.0.0"
+    app.launch(server_port=7860)

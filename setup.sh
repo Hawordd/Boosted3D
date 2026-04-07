@@ -82,4 +82,7 @@ if [ ! -d "./certbot/conf/live/$DOMAIN" ]; then
     rm -rf ./tmp_nginx_conf
 fi
 
+# Set correct permissions so containers can read Certbot output
+chmod -R 755 ./certbot/conf/live ./certbot/conf/archive
+
 echo "✅ Host Setup Complete. Run 'docker compose up -d' next."
