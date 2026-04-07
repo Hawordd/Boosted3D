@@ -32,7 +32,6 @@ model = TSR.from_pretrained(
 # Apply torch.compile() for max inference throughput on H100
 logger.info("Applying torch.compile() for H100 Hardware Optimization...")
 model.renderer = torch.compile(model.renderer, mode="max-autotune", disable=True) # set disable=True generically here but it can be enabled later
-model.lrm_generator = torch.compile(model.lrm_generator, mode="max-autotune", disable=True)
 logger.info("Model Ready & Online!")
 
 @app.get("/health")
