@@ -57,6 +57,9 @@ fi
 # 4. Nginx Directory Setup (For Docker bind mounts)
 mkdir -p ./nginx/ssl ./nginx/conf.d ./certbot/conf ./certbot/www
 
+# Template the domain into the Nginx config
+sed -i "s/3d-api.yourdomain.com/$DOMAIN/g" ./nginx/conf.d/app.conf
+
 # 5. Bootstrap SSL Certificate (Certbot)
 if [ ! -d "./certbot/conf/live/$DOMAIN" ]; then
     echo "Generating Initial SSL Certificate for $DOMAIN..."
