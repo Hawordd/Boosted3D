@@ -26,8 +26,7 @@ device = "cuda:0" if torch.cuda.is_available() else "cpu"
 model = TSR.from_pretrained(
     "stabilityai/TripoSR", 
     config_name="config.yaml", 
-    weight_name="model.safetensors",
-    save_dir="/app/models"
+    weight_name="model.safetensors"
 ).to(device)
 
 # Apply torch.compile() for max inference throughput on H100
