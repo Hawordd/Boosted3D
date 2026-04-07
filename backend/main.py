@@ -27,7 +27,7 @@ model = TSR.from_pretrained(
     "stabilityai/TripoSR", 
     config_name="config.yaml", 
     weight_name="model.safetensors",
-    cache_dir="/app/models"
+    save_dir="/app/models"
 ).to(device)
 
 # Apply torch.compile() for max inference throughput on H100
