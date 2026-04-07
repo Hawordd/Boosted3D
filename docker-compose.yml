@@ -26,6 +26,9 @@ services:
       dockerfile: Dockerfile
     environment:
       - API_URL=http://backend-gpu:8000
+      - GRADIO_SERVER_NAME=0.0.0.0
+      - GRADIO_CHECK_LOCAL_ADDRESS=False
+    command: ["python", "-u", "app.py"]
     depends_on:
       backend-gpu:
         condition: service_healthy
