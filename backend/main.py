@@ -67,7 +67,7 @@ async def generate_3d(
         
         with torch.no_grad():
             with torch.autocast(device_type="cuda", dtype=torch.float16):
-                scene_codes = model([img_framed])
+                scene_codes = model([img_framed], device=device)
                 # Render to mesh (marching cubes layer)
                 meshes = model.extract_mesh(scene_codes, resolution=256)
                 
