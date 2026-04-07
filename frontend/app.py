@@ -6,7 +6,7 @@ API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 def generate_model(image_path, topology_preset, texture_resolution, export_format, guidance_scale, poly_count_target):
     if not image_path:
-        return None, "Please upload an image."
+        return None, "Please upload an image.", None
         
     try:
         with open(image_path, 'rb') as f:
@@ -26,12 +26,16 @@ def generate_model(image_path, topology_preset, texture_resolution, export_forma
             output_path = f"/tmp/generated_model{ext}"
             with open(output_path, 'wb') as f:
                 f.write(response.content)
-            return output_path, "Success! Model processed."
+            
+            preview_model = output_path if ext == ".glb" else None
+            status_msg = "Success! (Preview requires GLB format)" if ext == ".fbx" else "Success! Model processed."
+            
+            return output_path, status_msg, preview_model
         else:
-            return None, f"Error: {response.text}"
+            return None, f"Error: {response.text}", None
             
     except Exception as e:
-        return None, f"Connection Error: {str(e)}"
+        return None, f"Connection Error: {str(e)}", None
 
 with gr.Blocks(theme=gr.themes.Monochrome()) as app:
     gr.Markdown("# Boosted3D: AI to UE5 Model Generator")
@@ -72,13 +76,14 @@ with gr.Blocks(theme=gr.themes.Monochrome()) as app:
             generate_btn = gr.Button("Generate 3D Model", variant="primary")
             
         with gr.Column():
+            output_model = gr.Model3D(label="3D Preview (Interactable & Animated)", clear_color=[0.0, 0.0, 0.0, 0.0])
             output_file = gr.File(label="Download Asset")
             status_text = gr.Textbox(label="Status", interactive=False)
 
     generate_btn.click(
         fn=generate_model,
         inputs=[input_image, topology_preset, texture_resolution, export_format, guidance_scale, poly_count_target],
-        outputs=[output_file, status_text]
+        outputs=[output_file, status_text, output_model]
     )
 
 if __name__ == "__main__":
