@@ -16,4 +16,5 @@ diffusers
 huggingface_hub
 accelerate
 einops
+onnxruntime-gpu
 rembg
