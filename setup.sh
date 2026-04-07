@@ -54,12 +54,12 @@ mkdir -p ./nginx/ssl ./nginx/conf.d ./certbot/conf ./certbot/www
 if [ ! -d "./certbot/conf/live/$DOMAIN" ]; then
     echo "Generating Initial SSL Certificate for $DOMAIN..."
     # Spin up temporary Nginx for ACME challenge
-    docker run --rm -p 80:80 \
-      -v "$(pwd)/nginx/conf.d:/etc/nginx/conf.d" \
+    mkdir -p ./tmp_nginx_conf
+    echo "server { listen 80; server_name $DOMAIN; location /.well-known/acme-challenge/ { root /var/www/certbot; } }" > ./tmp_nginx_conf/init.conf
+    docker run --name temp_nginx --rm -d -p 80:80 \
+      -v "$(pwd)/tmp_nginx_conf:/etc/nginx/conf.d" \
       -v "$(pwd)/certbot/www:/var/www/certbot" \
-      nginx:alpine \
-      sh -c "echo 'server { listen 80; server_name $DOMAIN; location /.well-known/acme-challenge/ { root /var/www/certbot; } }' > /etc/nginx/conf.d/init.conf && nginx -g 'daemon off;'" &
-    NGINX_PID=$!
+      nginx:alpine
     
     sleep 3 # Wait for Nginx
     docker run --rm \
@@ -68,8 +68,8 @@ if [ ! -d "./certbot/conf/live/$DOMAIN" ]; then
       certbot/certbot certonly --webroot -w /var/www/certbot \
       -d "$DOMAIN" --email "$EMAIL" --rsa-key-size 4096 --agree-tos --non-interactive
       
-    kill $NGINX_PID
-    rm ./nginx/conf.d/init.conf
+    docker stop temp_nginx
+    rm -rf ./tmp_nginx_conf
 fi
 
 echo "✅ Host Setup Complete. Run 'docker compose up -d' next."
