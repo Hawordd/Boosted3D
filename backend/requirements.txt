@@ -17,4 +17,3 @@ huggingface_hub
 accelerate
 einops
 rembg
-git+https://github.com/VAST-AI-Research/TripoSR.git
