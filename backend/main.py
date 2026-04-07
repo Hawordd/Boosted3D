@@ -75,7 +75,7 @@ async def generate_3d(
             with torch.autocast(device_type="cuda", dtype=torch.float16):
                 scene_codes = model([img_framed], device=device)
                 # Render to mesh (marching cubes layer)
-                meshes = model.extract_mesh(scene_codes, resolution=256)
+                meshes = model.extract_mesh(scene_codes, has_vertex_color=True, resolution=256)
                 
         # 3. VRAM Management (Critical for High-Throughput H100 usage!)
         torch.cuda.empty_cache()
