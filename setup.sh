@@ -36,6 +36,13 @@ if ! command -v docker &> /dev/null; then
     sh get-docker.sh
 fi
 
+if ! docker compose version &> /dev/null; then
+    echo "Installing Docker Compose Plugin..."
+    mkdir -p /usr/libexec/docker/cli-plugins
+    curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/libexec/docker/cli-plugins/docker-compose
+    chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+fi
+
 if ! dpkg -l | grep -q nvidia-container-toolkit; then
     echo "Installing NVIDIA Container Toolkit..."
     curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
